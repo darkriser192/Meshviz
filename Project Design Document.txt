@@ -1,0 +1,89 @@
+Notes and high level objectives, use cases and targets
+├─> Additive Manufacturing
+│    ├─> Vizualisation
+│    │    ├─>
+│    │    ├─>
+│    │    ├─>
+│    │    └─>
+│    ├─> Support Generation
+│    ├─> Slicing
+│    ├─> Modeling
+│    │    ├─> Meltpool simualtion (early stage parameter development)
+│    │    └─> Inherent strain simulation
+│    └─>
+│
+├─> Robotics
+│    ├─> Robot Modeling 
+│    ├─> Haptics
+│    ├─> Simulation
+│    └─>
+│
+├─> Modeling
+│    ├─> Signed Distance Fields
+│    ├─> B-REP File reading (LONGEST Term goal)
+│    ├─> Mesh rendering
+│    ├─> Fromat translations
+│    │    ├─> STL to OBJ, 3MF
+│    │    ├─> OBJ to 3MF, STL
+│    │    ├─> Tesselation to SDF
+│    │    ├─> BREP to Tesselation
+│    │    └─> SDF to Tesselation
+│    └─>
+│
+└─> Simbolic Computations (using Sympy?)
+
+----------------------------------------------
+Phase 0: Create geometric primitive generators
+├─> Direct Mesh object creation
+│   ├─> (Done) Tetrahedron (4 triangles - minimal test case)
+│   ├─> (Done) Cube (12 triangles - box primitives)
+│   └─> Sphere (configurable resolution - performance testing)
+└─> STL export functionality (validate format understanding)
+
+Phase 0 Themes:
+    Basic inheritance patterns for extensibility
+    Develop simple testable shapes and elementary learning goals
+----------------------------------------------
+Phase 1: MESH Reading → Mesh → Basic Rendering (2-3 weeks)
+├─> Binary STL reader (most STLs are binary)
+│    └─> ASCII STL reader (simpler format, secondary goal)  
+├─> OBJ reader
+├─> 3MF Reader
+├─> Integrate with your OpenGL renderer
+└─> Test with Stanford models (bunny, dragon, teacup)
+
+Phase 1 Themes:
+    Initial rednering of meshes
+
+----------------------------------------------
+Phase 2: Mesh Quality & Performance (1-2 weeks)
+├─> Add degeneracy handling to rendering pipeline
+├─> Profile with large meshes
+└─> Optimize bottlenecks
+
+Phase 2 Themes:
+
+----------------------------------------------
+Phase 3: Advanced Features (ongoing)
+├─> Mesh healing/repair
+├─> Spatial acceleration (BVH)
+└─> GPU compute shaders
+
+Phase 3 Themes:
+
+----------------------------------------------
+Summary of projects TODOS and things not in a phase
+    Not in a phase:
+        TODO - Animation using OpenGL or Pygame
+        TODO - URDF Reading
+    From Project files:
+
+
+
+----------------Glosary-----------------------
+- BREP:
+    Boundary Representation B-Splines, STEP, JT, solid file formates
+- SDF:
+    Signed Distance Fields / signed Metric Fields
+- Tesselation Files:
+    Tiangulations or quad representation of geometry. STL, 3MF, AMF, OBJ
