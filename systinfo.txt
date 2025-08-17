@@ -1,0 +1,25 @@
+[INFO] 01:11:40 -  Logger Created, fetching system info...
+[INFO] 01:11:50 - OS: Windows-10-10.0.26100-SP0
+[INFO] 01:11:50 - CPU: Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+[INFO] 01:11:50 - Cores: 32
+[INFO] 01:11:50 - Physical_Cores: 24
+[INFO] 01:11:50 - RAM_GB: 31.8
+[INFO] 01:11:50 - RAM_Available_GB: 16.44
+[INFO] 01:11:50 - Python_Version: 3.11.13
+[INFO] 01:11:50 - Architecture: 64bit
+[INFO] 01:11:50 - NVIDIA_ML_Error: 'str' object has no attribute 'decode'     
+[INFO] 01:11:50 - GPU: NVIDIA GeForce RTX 4070 Laptop GPU
+[INFO] 01:11:50 - GPU_Method: DirectX-Diag
+[INFO] 01:11:50 - === Resource Limits ===
+[INFO] 01:11:50 -   max_threads: 28
+[INFO] 01:11:50 -   total_threads: 32
+[INFO] 01:11:50 -   max_ram_bytes: 27317390540
+[INFO] 01:11:50 -   max_ram_gb: 25.44
+[INFO] 01:11:50 -   total_ram_gb: 31.8
+[INFO] 01:11:50 -   max_vram_bytes: 7297879244
+[INFO] 01:11:50 -   max_vram_gb: 6.8
+[INFO] 01:11:50 -   total_vram_gb: 8.0
+[INFO] 01:11:50 -   percentages: {'cpu': 0.9, 'ram': 0.8, 'vram': 0.85}       
+[INFO] 01:11:50 - OpenGL context created
+[INFO] 01:11:50 - OpenGL Version: 4.6.0 NVIDIA 572.60
+[INFO] 01:11:50 - Renderer: NVIDIA GeForce RTX 4070 Laptop GPU/PCIe/SSE2  
