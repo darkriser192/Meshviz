@@ -1,89 +1,264 @@
-Notes and high level objectives, use cases and targets
-├─> Additive Manufacturing
-│    ├─> Vizualisation
-│    │    ├─>
-│    │    ├─>
-│    │    ├─>
-│    │    └─>
-│    ├─> Support Generation
-│    ├─> Slicing
-│    ├─> Modeling
-│    │    ├─> Meltpool simualtion (early stage parameter development)
-│    │    └─> Inherent strain simulation
-│    └─>
-│
-├─> Robotics
-│    ├─> Robot Modeling 
-│    ├─> Haptics
-│    ├─> Simulation
-│    └─>
-│
-├─> Modeling
-│    ├─> Signed Distance Fields
-│    ├─> B-REP File reading (LONGEST Term goal)
-│    ├─> Mesh rendering
-│    ├─> Fromat translations
-│    │    ├─> STL to OBJ, 3MF
-│    │    ├─> OBJ to 3MF, STL
-│    │    ├─> Tesselation to SDF
-│    │    ├─> BREP to Tesselation
-│    │    └─> SDF to Tesselation
-│    └─>
-│
-└─> Simbolic Computations (using Sympy?)
+# Meshviz - Mesh Processing Toolkit for Additive Manufacturing
+---
+## Executive Summary & Context Transfer Guide
 
-----------------------------------------------
-Phase 0: Create geometric primitive generators
-├─> Direct Mesh object creation
-│   ├─> (Done) Tetrahedron (4 triangles - minimal test case)
-│   ├─> (Done) Cube (12 triangles - box primitives)
-│   └─> Sphere (configurable resolution - performance testing)
-└─> STL export functionality (validate format understanding)
+**Current Status (Phase 0+ Complete):** Production-grade mesh processing foundation with sophisticated degeneracy detection, basic OpenGL rendering, and extensible Mesh class architecture. Ready for Phase 1 (file I/O) implementation.
 
-Phase 0 Themes:
-    Basic inheritance patterns for extensibility
-    Develop simple testable shapes and elementary learning goals
-----------------------------------------------
-Phase 1: MESH Reading → Mesh → Basic Rendering (2-3 weeks)
-├─> Binary STL reader (most STLs are binary)
-│    └─> ASCII STL reader (simpler format, secondary goal)  
-├─> OBJ reader
-├─> 3MF Reader
-├─> Integrate with your OpenGL renderer
-└─> Test with Stanford models (bunny, dragon, teacup)
+**Domain Focus:** Additive Manufacturing mesh optimization with thermal modeling capabilities, targeting 1M+ triangle meshes at 0.001mm spatial resolution within 300x300x300mm build volumes.
 
-Phase 1 Themes:
-    Initial rednering of meshes
+**Architecture Philosophy:** Performance-first design anticipating GPU acceleration, multi-threading, and eventual C++/Cython migration. Sparse data structures and optimized affine transforms for real-time applications.
 
-----------------------------------------------
-Phase 2: Mesh Quality & Performance (1-2 weeks)
-├─> Add degeneracy handling to rendering pipeline
-├─> Profile with large meshes
-└─> Optimize bottlenecks
+**Next Session Priorities:** 
+1. Default color implementation for Mesh class (mesh-wide solid color)
+2. Basic transform architecture design (dual representation class)
+3. Mesh → OpenGL rendering integration
+4. Orbit camera controls (pan/zoom/rotate with mouse)
 
-Phase 2 Themes:
+---
+## Agent Context
 
-----------------------------------------------
-Phase 3: Advanced Features (ongoing)
-├─> Mesh healing/repair
-├─> Spatial acceleration (BVH)
-└─> GPU compute shaders
+**Working with This User:**
+This user is an AM industry professional with advanced technical knowledge (robotics, thermal modeling, signal processing). They have ADHD and explicitly prefer guided exploration over direct solutions. Key approach:
 
-Phase 3 Themes:
+- **Guide, don't solve**: Ask targeted questions to help them think through problems. They want to implement solutions themselves and return for optimization/criticism
+- **Challenge assumptions constructively**: They appreciate when you question their approach or suggest alternatives, but frame as exploration ("What if...?" "Have you considered...?")
+- **Match technical sophistication**: They understand Nyquist sampling, affine transforms, robotics kinematics, etc. Don't oversimplify, but do help structure complex decisions
+- **Clarify hidden concepts**: They often have ideas "floating in their head" that need extraction and formalization
 
-----------------------------------------------
-Summary of projects TODOS and things not in a phase
-    Not in a phase:
-        TODO - Animation using OpenGL or Pygame
-        TODO - URDF Reading
-    From Project files:
+**Project Context Established:**
+- **Priority Philosophy**: Rendering pipeline first to validate architecture, then file I/O, then spatial algorithms
+- **Transform Architecture**: Dual representation approach (numeric for performance, symbolic for precision) with dependency tracking
+- **Degeneracy Detection**: Multi-tier system based on Nyquist principles - this is production-grade, not academic
+- **Performance Targets**: 1M+ triangles, eventual C++/Cython migration, GPU acceleration
+- **Domain Applications**: Support generation, collision detection, thermal simulation, haptic feedback
+
+**Technical Decisions Made:**
+- Mesh class with lazy computation and sophisticated degeneracy detection
+- Array-of-structures approach for transforms (informed by robotics messaging experience)
+- Orbit camera with separate pan/zoom/rotate controls (NX/3DXpert style)
+- Mesh-wide default color initially, sparse vertex colors later
+- Phase-based development with clear completion criteria
+
+**Communication Style:**
+- Asks for "housecleaning" when they sense architectural misalignment
+- Values documentation that enables context switching between Claude instances
+- Appreciates when you identify gaps between implementation and design intent
+- Wants to understand trade-offs and implications, not just get working code
+
+---
+## Project Folder Structure
+
+```
+Meshviz/
+├── main.py                     # OpenGL rendering loop, projection matrices
+├── shapes.py                   # Core Mesh class, primitive generators, degeneracy detection  
+├── shaders/
+│   ├── shaders.py             # Basic vertex/fragment shaders, compilation utilities
+│   └── __pycache__/
+├── utils/
+│   ├── log_setup.py           # Centralized logging configuration
+│   ├── sysinfo.py             # System resource detection (legacy)
+│   ├── sysinfo2.py            # Enhanced system info with GPU detection
+│   ├── support_math.py        # [EMPTY] - planned math optimization functions
+│   └── __init__.py
+├── DemoShapes/                # Test assets for validation
+│   ├── bunny.obj
+│   ├── Stanford_dragon_84kfacets_binary.stl  
+│   └── teapot_ASCII.stl
+├── Project Design Document.txt # [THIS FILE - being updated]
+└── [system diagnostic files]
+```
+
+---
+
+## Domain-Specific Context
+
+### Additive Manufacturing Requirements
+- **Thermal Modeling:** Nyquist-based sampling (2x highest frequency) for melt pool analysis
+- **Physical Constraints:** 300x300x300mm build volumes, 0.001mm spatial resolution, 0.001s temporal resolution
+- **Mesh Quality:** Multi-level degeneracy detection for thermal/visual/numerical significance
+- **Real-time Applications:** Support generation, collision detection
+
+### Robotics
+- **Trajectory Generation:** Fundamental ways to generate trajectory from waypoints, 1 advanced tajectory generation using gradient descent.
+- **Inverse Kinematics:** 6-DOF redundant robotic arms to be expected. E.g. DaVinci robot arm
+- **OpenHaptics Support:** Integrates with OpenHaptics 3.5 for haptic feedback
+- **PID control algorithms:** Basic PID control algorithms
+
+### Performance Targets
+- **Scale:** 1M+ triangles typical, efficient handling required
+- **Memory Layout:** Sparse structures for large datasets
+- **Future Migration:** GPU compute shaders, Cython, eventual C++ with OpenHaptics
+- **Transform Optimization:** Leverage affine matrix sparsity for performance
+
+---
+
+## Current Phase Status
+
+### Phase 0: Geometric Primitives ✅ COMPLETE
+**Status:** Implemented and tested
+- ✅ Tetrahedron generator (sphere-inscribed, configurable size)
+- ✅ Cube generator (12 triangles, validated geometry)  
+- ✅ Basic Mesh class with facet/vertex management
+- ✅ Degeneracy classification system (3-tier: numerical/thermal/visual)
+- ✅ Area and normal computation (vectorized)
+- ✅ OpenGL rendering pipeline (orthographic/perspective projection)
+
+**Key Infrastructure Built:**
+- Sophisticated degeneracy detection beyond simple area thresholds
+- Memory-efficient Mesh class with lazy computation
+- System resource detection and logging framework
+- **Recent Progress**: TODO cleanup completed, rendering priority established, transform architecture planned
+
+### Phase 1: Mesh Rendering Pipeline ⏳ IN PROGRESS  
+**Priority:** Immediate focus for next development session
+
+**Core Rendering Features (Sequential):**
+1. [ ] **Mesh → OpenGL Integration** - Render Mesh objects instead of hardcoded triangles
+2. [ ] **VBO from Mesh Data** - Build vertex buffers from Mesh.vertices and Mesh.facets
+3. [ ] **Camera Controls** - Rotate/zoom around mesh objects
+4. [ ] **Normal Visualization** - Debug rendering for mesh validation
+5. [ ] **Element Buffer Objects** - Indexed rendering optimization
+
+**Deferred to Later Phases:**
+- [ ] Wireframe vs solid rendering modes
+- [ ] Instanced rendering preparation  
+- [ ] Vertex Array Object optimization
+
+**Transform Architecture (Future):**
+- Barebones implementation initially
+- Design for transform object hierarchy with path-finding capabilities
+
+### Phase 2: Mesh Quality & Performance 📋 PLANNED
+**Target:** Optimize for production AM workflows
+
+**Core Features:**
+- [ ] Mesh healing/repair algorithms
+- [ ] Performance profiling with 1M+ triangle meshes
+- [ ] GPU acceleration proof-of-concept
+- [ ] Memory optimization for large datasets
+
+### Phase 3: Spatial Acceleration 🔬 RESEARCH
+**Target:** Advanced geometric algorithms for AM applications
+
+**Spatial Structures:**
+- [ ] BVH (Bounding Volume Hierarchy) implementation
+- [ ] Octree/spatial hashing for collision detection
+- [ ] KD-tree for nearest neighbor queries
+
+**Advanced Algorithms:**
+- [ ] GJK (Gilbert-Johnson-Keerthi) collision detection
+- [ ] Minkowski sum/difference operations
+- [ ] Raytracing for support structure generation
+- [ ] Spatter detection algorithms
+- [ ] Marching Cubes Algorithm  Convert SDF to Mesh
+---
+
+## Technical TODO Inventory
+
+### 🔥 Priority 1: Current Phase Blockers
+- [ ] **STL binary reader** - Core file format for AM industry
+- [ ] **ASCII STL reader** - Fallback parsing
+- [ ] **OBJ reader** - Common mesh interchange format
+- [ ] **Sphere geometry generator** - Complete primitive set
+
+### 🔧 Priority 2: Architecture & Optimization  
+- [ ] **Transform optimization functions** - Efficient 4x4 matrix operations
+- [ ] **Sparse degeneracy storage** - Memory optimization for large meshes
+- [ ] **Vector computation optimization** - Reuse calculations between area/normal
+- [ ] **support_math.py implementation** - Core mathematical utilities
+
+### 🎨 Priority 3: Rendering & Materials
+- [ ] **Material definition system** - PBR material support
+- [ ] **Default color handling** - Graceful fallbacks
+- [ ] **Vertex color management** - Sparse color assignment
+- [ ] **Enhanced shader pipeline** - Normal mapping, lighting
+
+### 🚀 Priority 4: Advanced Features
+- [ ] **BVH implementation** - Spatial acceleration
+- [ ] **Raytracing pipeline** - Support generation, analysis
+- [ ] **SDF (Signed Distance Field) class** - Implicit surface modeling
+- [ ] **GPU compute shader integration** - Performance acceleration
+
+### 🧹 Priority 5: Maintenance & Documentation
+- [ ] **Remove outdated TODOs** - Clean up completed items
+- [ ] **Update degeneracy flags** - Integrate into update functions  
+- [ ] **Vertex normal computation** - Weighted average implementation
+- [ ] **Normal magnitude degeneracy** - Angular tolerance detection
+
+---
+
+## Hidden Concepts & Research Directions
+
+### Multi-Level Degeneracy Detection
+**Current Implementation:** 3-tier system (numerical/thermal/visual) based on AM domain requirements
+**Future Enhancement:** Angular/normal magnitude degeneracy for geometric stability
+**Research Question:** Optimal threshold relationships for different AM processes
+
+### Sparse Data Architecture  
+**Current Challenge:** Memory overhead for degeneracy flags on large meshes
+**Optimization Strategies:** Bitfield storage, sparse indexing, lazy computation
+**Performance Target:** <4GB memory for 1M triangle meshes
+
+### Transform Optimization Pipeline
+**Affine Transform Efficiency:** Exploit zero structure in transformation matrices
+**Hierarchy Support:** Scene graph-like transform chains for complex assemblies  
+**Application:** Robot kinematics, multi-part AM builds, haptic device integration
+
+### Thermal-Aware Mesh Processing
+**Nyquist Sampling:** Use signal processing principles for mesh resolution
+**Melt Pool Analysis:** Triangle classification for thermal simulation relevance
+**Time Integration:** Support for temporal mesh evolution (0.001s resolution)
+
+---
+
+## Validation Datasets
+
+### Test Meshes Available
+- **Stanford Bunny** (`bunny.obj`) - ~35K triangles, organic geometry
+- **Stanford Dragon** (`Stanford_dragon_84kfacets_binary.stl`) - 84K triangles, complex topology
+- **Utah Teapot** (`teapot_ASCII.stl`) - Classic test case, moderate complexity
+
+### Planned Validation Strategy
+1. **Correctness:** Verify mesh loading preserves geometry
+2. **Performance:** Benchmark processing times vs. triangle count
+3. **Degeneracy Analysis:** Real-world mesh quality assessment
+4. **Memory Profiling:** Identify bottlenecks for optimization
+5. **Downfacing Triagnle Rendering** Make sure we can identify triagnles/areas that are pointing down based on a 45 degree angle test
+
+---
+
+## Future Integration Roadmap
+
+### Near-term (Next 2-3 months)
+- Complete Phase 1 file I/O
+- Performance optimization for target mesh sizes
+- Basic spatial acceleration (BVH)
+
+### Medium-term (6-12 months)  
+- GPU acceleration proof-of-concept
+- Cython optimization for critical paths
+- Advanced collision detection (GJK)
+- Haptic integration experiments
+- Open Source Project publication
+
+### Long-term (1+ years)
+- C++ migration for performance-critical modules
+- OpenHaptics integration for tactile feedback
+- Production AM workflow integration
+- Advanced thermal simulation coupling
+
+---
+## Glosary
 
 
 
-----------------Glosary-----------------------
-- BREP:
-    Boundary Representation B-Splines, STEP, JT, solid file formates
-- SDF:
-    Signed Distance Fields / signed Metric Fields
-- Tesselation Files:
-    Tiangulations or quad representation of geometry. STL, 3MF, AMF, OBJ
+
+---
+## Notes
+
+
+
+
+---
+*Last Updated: Context transfer ready for seamless development continuation*
