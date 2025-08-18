@@ -1,6 +1,6 @@
 import numpy as np
 import sympy as smp
-# TODO import support_math as * # need to decide where I am constructing some of the math operations I want to use.
+# support_math functions will be integrated directly as needed
 # TODO Create Trasnform_vector support function. efficient multiplication of a 4x4 afine trasnform and a 3,1 vector
 # TODO Create Transform_Transform support function. efficient multiplication of a 4x4 afine trasnform and a 4,4 affine trasnform
 
@@ -144,7 +144,9 @@ def _generate_tetrahedron_geometry(size = 1.0):
     return vertices, facets
 
 def _generate_cube_geometry(size = 1.0):
-    # TODO implement
+    """
+    Generates a unit cube with 12 triangles (2 per face).
+    """
     v0 = np.array([ 0.5,  0.5,  0.5]) # top 1 vertex num 1
     v1 = np.array([-0.5,  0.5,  0.5]) # top 2 vertex num 2
     v2 = np.array([ 0.5, -0.5,  0.5]) # top 3 vertex num 3
