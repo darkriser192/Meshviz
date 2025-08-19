@@ -4,6 +4,14 @@ import subprocess
 import multiprocessing
 import pynvml
 
+# Get system limits for CPU, RAM, and VRAM
+# Returns a dictionary with keys: "threads", "ram", "vram"
+# Each value is the maximum allowed resource based on percentage limits
+# Default percentages can be adjusted as needed
+
+# TODO optimize "import" statements across the codebase
+# TODO Merge this with sysinfo2.py
+
 def get_system_limits(vram_pct=0.85, ram_pct=0.80, cpu_pct=0.90):
     # CPU
     total_threads = multiprocessing.cpu_count()

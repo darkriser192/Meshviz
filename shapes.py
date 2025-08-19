@@ -1,8 +1,11 @@
 import numpy as np
-import sympy as smp
-# support_math functions will be integrated directly as needed
-# TODO Create Trasnform_vector support function. efficient multiplication of a 4x4 afine trasnform and a 3,1 vector
-# TODO Create Transform_Transform support function. efficient multiplication of a 4x4 afine trasnform and a 4,4 affine trasnform
+import sympy
+
+# support_math functions will be integrated directly as needed placed in a separate file later in the development
+# TODO Create functions to convert between affine, Quaternion, euler and vector-angle
+# TODO Create a function that efficiently computes the transpose of a 4x4 affine transform
+# TODO Create a function that efficiently computes the determinant of a 4x4 affine transform
+# TODO optimize "import" statements across the codebase
 
 #----- Global constants for program use -----#
 
@@ -10,7 +13,8 @@ import sympy as smp
 # Applied Nyquist (1/2) and FEA (1/3) safety factors to ensure adequate spatial sampling
 
 # Base geometric scales
-MELT_POOL_DIAMETER = 0.1  # mm
+LASER_SPOT_DIAMETER = 0.05  # mm 
+MELT_POOL_DIAMETER = 2 * LASER_SPOT_DIAMETER # mm
 GEOMETRIC_TOLERANCE = 0.01  # mm (±0.01 mm mechanical tolerance)
 
 # Area thresholds with safety factors
@@ -28,6 +32,7 @@ NUMERICAL_PRECISION_AREA = 1e-12  # mm²
 # Normal Degeneracy
 # TODO consutrct some degeneracy for the Normal or angular tollerance
 
+#----- Support functions for geometric calculations -----#
 # Degeneracy classification thresholds
 def classify_triangle_degeneracy(area):
     """
@@ -100,6 +105,18 @@ def compute_vertex_normal(facet_normals: np.ndarray, # A structure of vectors re
                           facets: np.ndarray,
                           areas: np.ndarray,
                           vertex_normals: np.ndarray): #-> np.ndarray:
+    """
+    Computes vertex normals by averaging facet normals weighted by facet area.
+    This function assumes facet_normals and facets are already computed.
+
+    Args:
+
+        facet_normals: np.ndarray
+
+        
+    Returns:
+        In place update vertex_normals: np.ndarray
+    """
     # TODO needs to be implemented weigthed average of the normals of each faces to comput the normal vectors for a vertex
     pass
 
@@ -144,9 +161,13 @@ def _generate_tetrahedron_geometry(size = 1.0):
     return vertices, facets
 
 def _generate_cube_geometry(size = 1.0):
+    # Decided to leave winding as it is to debug the normals when rendering is implemented
     """
-    Generates a unit cube with 12 triangles (2 per face).
+    Generates a cube with vertices scaled by the given size.
+    Vertices are centered at the origin, with size defining the half-length of each edge.
+    
     """
+    # Vertices of a cube centered at the origin
     v0 = np.array([ 0.5,  0.5,  0.5]) # top 1 vertex num 1
     v1 = np.array([-0.5,  0.5,  0.5]) # top 2 vertex num 2
     v2 = np.array([ 0.5, -0.5,  0.5]) # top 3 vertex num 3
@@ -179,7 +200,36 @@ def _generate_sphere_geomery(redius = 1.0, resolution = 1):
     
     pass
 
-# Object that contains optimized triangular infomration and computes any other meaningfull data
+def transform_vector(trasnform: np.ndarray, vector: np.ndarray) -> np.ndarray:
+    # TODO Create Transform_vector support function. Efficient multiplication of a 4x4 afine transformation and a 3,1 vector
+    """
+    Applies a 4x4 affine transformation to a 3D vector.
+    Args:
+        transform: 4x4 affine transformation matrix
+        vector: 3D vector to transform (shape (3,1) or (N, 3))
+    Returns:
+        np.ndarray: Transformed vector(s) in homogeneous coordinates (shape (3,1) or (N, 3))
+    """
+
+
+    return result_vector
+
+def transform_transform(transform_mod: np.ndarray, transform_target: np.ndarray) -> np.ndarray:
+    # TODO Create Transform_Transform support function. Efficient multiplication of a 4x4 afine transformation and a 4,4 affine transform
+    """
+    Combines two affine transformations into a single transformation.
+    """
+    return result_transform
+
+def inverse_Homogeneous_transform(transform: np.ndarray) -> np.ndarray:
+    # TODO Create a function that efficiently computes the inverse of a 4x4 affine transform
+    """
+    Computes the inverse of a 4x4 affine transformation matrix.
+    """
+    return inverseTransform
+
+#----- Objects and classes for the Meshviz library -----#
+## Mesh object that contains optimized triangular infomration and computes any other meaningfull data
 class Mesh(): 
     """
     Fundamental object storing vertices, facets, and related data.
@@ -227,8 +277,8 @@ class Mesh():
 
     def __init__(
         self, 
-        vertices = None,  # [x, y, z] vertex position we have moved the color into its own location, no need to store anythign more than 3 cooridnates here
-        parent = 0, # Index of the parent trasnfomration
+        vertices = None,  # [x, y, z] vertex position we have moved the color into its own location
+        parent = 0, # Index of the parent trasnfomration. If 0 then it is the root transformation
         transform = None, # Transformation between the parent trasnformation and all the coordinates of the vertices
         facets = None, # Defines the facets of the mesh as triplets of the vertex indexes
         color = None, # RGBA values of the color of the material, if non asigned, single color for every vertex
@@ -239,7 +289,9 @@ class Mesh():
         self.vertices = (np.empty((0,3), dtype=np.float64) if vertices is None else np.asarray(vertices, dtype=np.float64))
         self.facets = (np.empty((0,3), dtype=np.uint32) if facets is None else np.array(facets, dtype=np.uint32)) # there can be no "negative" indexing of faces so uint should be more memory efficient
         # TODO implement a material definition
-        self.color = (np.empty((0,4), dtype=np.uint32) if color is None else np.asarray(color, dtype=np.uint32))
+        self.solid_color = np.array([0.5, 0.5, 0.5, 1.0], dtype=np.float32) # RGBA Default color, if no color is provided
+        
+        # Initialize derived properties
         self.num_facets = len(self.facets)
         self.num__vertex = len(self.vertices)
 
@@ -248,6 +300,7 @@ class Mesh():
         self.vertex_normals = np.zeros((self.num__vertex, 3), dtype=np.float64)
         self.facets_area = np.zeros((self.num_facets, 1), dtype=np.float64)
         self.facet_centers = np.zeros((self.num_facets, 3), dtype=np.float64)
+        self.vertex_color = np.zeros((self.num__vertex, 4), dtype=np.float32) if color is None else np.asarray(color, dtype=np.float32) # RGBA color for each vertex, if not provided then it is a solid color
 
         # Validate shapes
         if self.vertices.ndim != 2 or self.vertices.shape[1] < 3:
@@ -325,6 +378,7 @@ class Mesh():
     def from_sphere(cls, radius=1.0, resolution=8):
         return create_sphere(radius, resolution) # Delegates to factory function
 
+#-----------------------------------------------------------------------------#
 # Standalone function that returns a teteahedron mesh 
 def create_tetrahedron(size=1.0) -> Mesh:
     vertices, facets = _generate_tetrahedron_geometry(size)
@@ -339,6 +393,9 @@ def create_sphere(size = 1.0, resolution = 1.0) -> Mesh:
     return Mesh()
 
 # For contour generation
+# TODO This fucntion requires more context to be implemented
+# It should return the triangles that are above the geometric tolerance for contour splines
+# This will be used to generate contour splines for the mesh
 def get_contour_triangles(mesh: Mesh):
     """Only use triangles above geometric tolerance for contour splines."""
     valid_mask = mesh.facets_area[:, 0] >= GEOMETRIC_TOLERANCE_AREA
@@ -358,8 +415,22 @@ def get_renderable_triangles(mesh):
     valid_mask = mesh.facets_area[:, 0] >= NUMERICAL_PRECISION_AREA
     return mesh.facets[valid_mask]
 
-# Object representing a Signed Distance Field
+## SDF object that contains optimized metric information for signed distance functions
+# TODO Implement SDF object that contains optimized metric information for signed distance functions
+# This will be used to compute the distance from a point to the surface of the mesh aswell for 3D volume rendering
 class SDF():
+    # TODO Implement
+    pass
+
+
+
+# Contour class that represents a contour spline
+# This will be used to represent the contour of the mesh in 2D space. Either as a 2D projection or as a 3D contour.
+class Contour():
+    """
+    Class to represent a contour spline.
+    This will be used to represent the contour of the mesh in 2D space. Either as a 2D projection or as a 3D contour.
+    """
     # TODO Implement
     pass
 
@@ -390,6 +461,40 @@ def file2mesh(file_path: str) -> Mesh:
     # TODO: implement OBJ reader
     
     return Mesh()
+
+def ContourFromMesh(intersection_plane: None, # TODO implement intersection plane
+                    mesh: Mesh,
+                    resolution =  0.1) -> Contour:
+    """
+    Generates a contour spline from a mesh object.
+    Args:
+        mesh: Mesh object to generate contour from
+        resolution: Resolution of the contour spline
+        intersection_plane: Plane to intersect with the mesh
+        
+    Returns:
+        Contour: Contour spline object
+    """
+    # TODO Implement contour generation from mesh
+    return Contour()
+
+def ContourFromSDF(intersection_plane: None, # TODO implement intersection plane
+                   sdf: SDF,
+                   resolution: float = 0.1,
+                   threshold: float = GEOMETRIC_TOLERANCE_AREA) -> Contour:
+    """
+    Generates a contour spline from a signed distance function (SDF).
+    
+    Args:
+        sdf: SDF object to generate contour from
+        resolution: Resolution of the contour spline
+        intersection_plane: Plane to intersect with the SDF
+        
+    Returns:
+        Contour: Contour spline object
+    """
+    # TODO Implement contour generation from SDF
+    return Contour()
 
 def test_convex_shape_winding(mesh: Mesh):
     """
@@ -422,13 +527,7 @@ triangle_vertices = np.array([
     [ 0.5, -0.5, 0.0]   # Bottom Right
 ], dtype = np.float64)
 
-
-
-
-
-
-
-# Lets build some testing scripts that lets us trial the functions here without the need to go to main.py to test
+#----- Main function to test the Meshviz - Shapes library -----#
 def main():
     v1_single = np.array([[1, 0, 0]])  # Shape: (1, 3)
     v2_single = np.array([[0, 1, 0]])  # Shape: (1, 3)
@@ -479,7 +578,7 @@ def main():
     print(f"Cube vertices:")
     print(cube_1.vertices)
 
-    # Unit test for simple convex shapes centered at the origin
+    # Test for simple convex shapes centered at the origin
     # This tests if the normals on a mesh point in the outward direction
     print("Cube Normals")
     dot_products = test_convex_shape_winding(cube_1)
@@ -487,4 +586,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+#----- End of Meshviz - Shapes library -----#

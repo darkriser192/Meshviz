@@ -5,6 +5,9 @@ import multiprocessing
 import pynvml
 import os
 
+# TODO optimize "import" statements across the codebase
+# TODO Merge this with sysinfo.py
+
 def get_system_info(include_limits=True, vram_pct=0.85, ram_pct=0.80, cpu_pct=0.90):
     """
     Consolidated system information gathering with optional resource limits

@@ -4,18 +4,36 @@
 
 **Current Status (Phase 0+ Complete):** Production-grade mesh processing foundation with sophisticated degeneracy detection, basic OpenGL rendering, and extensible Mesh class architecture. Ready for Phase 1 (file I/O) implementation.
 
-**Domain Focus:** Additive Manufacturing mesh optimization with thermal modeling capabilities, targeting 1M+ triangle meshes at 0.001mm spatial resolution within 300x300x300mm build volumes.
+**Domain Focus 1:** Additive Manufacturing mesh optimization with thermal modeling capabilities, targeting 1M+ triangle meshes at 0.001mm spatial resolution within 300x300x300mm build volumes.
+**Domain Focus 2:** Robotics trajectory generation, optimization, control, haptics and shared teleoperation
+**Domain Focus 3:** Modeling utilizing Signed Distance Fields (SDF) to generate 3D geometry as a design and analysis tool
 
 **Architecture Philosophy:** Performance-first design anticipating GPU acceleration, multi-threading, and eventual C++/Cython migration. Sparse data structures and optimized affine transforms for real-time applications.
 
 **Next Session Priorities:** 
-1. Default color implementation for Mesh class (mesh-wide solid color)
+1. Default color implementation for Mesh class (mesh-wide solid color) (50% Completed)
 2. Basic transform architecture design (dual representation class)
 3. Mesh → OpenGL rendering integration
 4. Orbit camera controls (pan/zoom/rotate with mouse)
 
 ---
+## In-between sessions updates
+
+### Last Agent Updated (8/18/2025): 
+*Context transfer ready for seamless development continuation*
+### Last User Updated (TBD): 
+*Updated project design document with more details*
+*Implemented solid color for the mesh as a defaul color assignment
+*Added a structure for future sparse per-vertex color definition
+*Added TODOs to represent and track tasks that should be considered and tracked
+
+---
 ## Agent Context
+
+** Purpose of this Document:**
+The intention of the Project Design Document is to radily transfer infomration between diferent agent instances as well as track the overall development plan. This should be a living document updated by the agent and the user.
+The agent should read the document at the begining of every development session and help update it at the end of every development session to keep good track of project goals and progress.
+If more context should be added to better transfer work between sessions or agents it should be added as needed.
 
 **Working with This User:**
 This user is an AM industry professional with advanced technical knowledge (robotics, thermal modeling, signal processing). They have ADHD and explicitly prefer guided exploration over direct solutions. Key approach:
@@ -24,6 +42,8 @@ This user is an AM industry professional with advanced technical knowledge (robo
 - **Challenge assumptions constructively**: They appreciate when you question their approach or suggest alternatives, but frame as exploration ("What if...?" "Have you considered...?")
 - **Match technical sophistication**: They understand Nyquist sampling, affine transforms, robotics kinematics, etc. Don't oversimplify, but do help structure complex decisions
 - **Clarify hidden concepts**: They often have ideas "floating in their head" that need extraction and formalization
+- **Users programing background:** The user understands high level coding concepts but has limited exposure to actual code and program development. A shortcoming coming from their self-taught background
+- **Learning Goals:** The user utilizes this project as a way to develop their practical programing knowledge. Guide them through the documentation and help solve erros and bugs. Don't jump to wiritng the code instead help them learn it.
 
 **Project Context Established:**
 - **Priority Philosophy**: Rendering pipeline first to validate architecture, then file I/O, then spatial algorithms
@@ -65,7 +85,7 @@ Meshviz/
 │   ├── bunny.obj
 │   ├── Stanford_dragon_84kfacets_binary.stl  
 │   └── teapot_ASCII.stl
-├── Project Design Document.txt # [THIS FILE - being updated]
+├── Project Design Document.txt # [THIS FILE - Live Document]
 └── [system diagnostic files]
 ```
 
@@ -121,13 +141,14 @@ Meshviz/
 5. [ ] **Element Buffer Objects** - Indexed rendering optimization
 
 **Deferred to Later Phases:**
-- [ ] Wireframe vs solid rendering modes
+- [ ] Option for Wireframe rendering mode
 - [ ] Instanced rendering preparation  
 - [ ] Vertex Array Object optimization
 
 **Transform Architecture (Future):**
 - Barebones implementation initially
 - Design for transform object hierarchy with path-finding capabilities
+- "Path Finding" in the above context means calcualting the trasnformation from one frame to another upon request
 
 ### Phase 2: Mesh Quality & Performance 📋 PLANNED
 **Target:** Optimize for production AM workflows
@@ -151,7 +172,7 @@ Meshviz/
 - [ ] Minkowski sum/difference operations
 - [ ] Raytracing for support structure generation
 - [ ] Spatter detection algorithms
-- [ ] Marching Cubes Algorithm  Convert SDF to Mesh
+- [ ] Marching Cubes algorithm  Convert SDF to Mesh
 ---
 
 ## Technical TODO Inventory
@@ -176,7 +197,7 @@ Meshviz/
 
 ### 🚀 Priority 4: Advanced Features
 - [ ] **BVH implementation** - Spatial acceleration
-- [ ] **Raytracing pipeline** - Support generation, analysis
+- [ ] **Raytracing pipeline** - Support generation, analysis, rendering
 - [ ] **SDF (Signed Distance Field) class** - Implicit surface modeling
 - [ ] **GPU compute shader integration** - Performance acceleration
 
@@ -210,6 +231,15 @@ Meshviz/
 **Melt Pool Analysis:** Triangle classification for thermal simulation relevance
 **Time Integration:** Support for temporal mesh evolution (0.001s resolution)
 
+### Robot Control And Trajectory Generation
+**Trajectory Generation and modification:** Robot trajectory Generation
+**Robot Teleoperation:** shared control teleoperation
+**Inverse Kinematics:** Capability to produce inverse kinematic results 
+
+### AM simulation
+**Meltpool modeling:** L-PBF (Laser Powder Bed Fusion) meltpool modleing under diferent boundary conditions
+**Meltpool modeling:** Utilizing Greens functions for analytical solutions or numerical aproximations for everything else
+
 ---
 
 ## Validation Datasets
@@ -234,13 +264,14 @@ Meshviz/
 - Complete Phase 1 file I/O
 - Performance optimization for target mesh sizes
 - Basic spatial acceleration (BVH)
+- Transformations / Frame / and Joint implementations
 
 ### Medium-term (6-12 months)  
 - GPU acceleration proof-of-concept
-- Cython optimization for critical paths
 - Advanced collision detection (GJK)
 - Haptic integration experiments
 - Open Source Project publication
+- Cython optimization for critical paths
 
 ### Long-term (1+ years)
 - C++ migration for performance-critical modules
@@ -249,16 +280,17 @@ Meshviz/
 - Advanced thermal simulation coupling
 
 ---
+
 ## Glosary
 
 
 
 
 ---
+
 ## Notes
 
 
 
 
 ---
-*Last Updated: Context transfer ready for seamless development continuation*

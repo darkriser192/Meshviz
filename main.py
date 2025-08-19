@@ -8,7 +8,7 @@ from utils.sysinfo2 import get_system_info
 from utils.sysinfo import get_system_limits
 import sympy as smp 
 
-# Global tasklist
+# TODO optimize "import" statements across the codebase
 # TODO Implement BVH
 # TODO Implement some raytraicing
 
