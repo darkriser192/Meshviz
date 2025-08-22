@@ -31,6 +31,17 @@
 **Dual Transform Representation:** Matrix for performance, symbolic for precision (robotics insight)
 **Phase-based Development:** Rendering first to validate architecture, then file I/O, then spatial algorithms
 
+**Color Rendering Architecture:**
+- **Uniform Location Caching:** Extract uniform locations once at startup, update values based on rendering mode
+- **Multi-Mode Color System:** Support individual mesh colors, global color override, and dynamic normal-based coloring
+- **Performance-Conscious Updates:** Different update frequencies per mode (setup once, per-frame, per-mesh)
+- **Mode Switching Strategy:** Hard-coded mode selection (restart to change) transitioning to GUI-based controls
+
+**Rendering Mode Types:**
+1. **Individual Colors:** Each mesh uses its `solid_color` property (rare updates)
+2. **Global Override:** All meshes use single color, can vary by object type (frame-level updates)
+3. **Dynamic Normals:** Per-facet coloring based on weighted vertex normals (per-frame for moving objects)
+
 ---
 ## Known Issues & Debugging Notes
 
@@ -86,6 +97,54 @@
 - Memory: <4GB for large meshes with sparse data structures
 - Rendering: 60fps interaction, real-time camera controls
 - Precision: 0.001mm spatial resolution within 300x300x300mm volumes
+
+**Performance Metrics Strategy (Decorator Approach):**
+
+### Phase 1: Core Metrics (Immediate Implementation)
+1. **Mesh creation timing:**
+   - @track_performance("tetrahedron_creation") def create_tetrahedron()
+   - @track_performance("cube_creation") def create_cube()
+   
+2. **Buffer operations:**
+   - @track_performance("buffer_upload") def create_mesh_buffers()
+   - Track VBO/EBO creation and data upload times
+   
+3. **Frame timing:**
+   - Main render loop timing (per-frame measurement)
+   - Rolling FPS calculation (60-frame average)
+
+### Phase 2: Advanced Metrics (Future Enhancement)
+4. **Memory tracking:**
+   - Memory deltas: before/after major operations
+   - GPU memory usage: when detectable via NVIDIA-ML
+   - Peak memory usage per session
+   
+5. **Render metrics:**
+   - Draw call count per frame
+   - Triangles rendered per frame/second
+   - Shader compilation times
+   
+6. **File I/O operations (Future):**
+   - STL/OBJ loading times vs file size
+   - Mesh processing pipeline timing
+
+### Phase 3: Domain-Specific Metrics (AM Applications)
+7. **Geometric processing:**
+   - Degeneracy detection timing vs triangle count
+   - Normal computation timing
+   - Spatial acceleration structure build times
+   
+8. **Quality metrics:**
+   - Triangle quality distribution
+   - Mesh healing operation times
+   - Collision detection performance
+
+**Decorator Design Requirements:**
+- Minimal overhead: <0.1ms timing cost
+- Optional context: Pass mesh size, triangle count, etc.
+- Memory tracking: Optional memory delta measurement
+- GPU metrics: When NVIDIA-ML available
+- Failure resilience: Continue execution if timing fails
 
 ---
 ## Executive Summary & Context Transfer Guide
@@ -424,3 +483,44 @@ Meshviz/
 
 
 ---
+
+## SYSINFO Merge and Implementation Strategy
+### Phase 1: Core Merge
+- Use sysinfo2.py as foundation
+- Add backward compatibility wrapper
+- Add OpenGL detection capability
+- Basic JSON export framework
+
+### Phase 2: Hardware Context
+
+- Implement comprehensive hardware detection
+- Add Python environment scanning
+- Hardware context JSON export
+- Change detection (only update when needed)
+
+### Phase 3: Performance Context
+
+- formance metrics collection framework
+- Runtime operation tracking
+- Performance context JSON export
+- Integration with main.py render loop
+
+### Phase 4: Integration & Testing
+
+- Update main.py to use new interface
+- Test context switching workflow
+- Validate Claude handoff scenarios
+- Performance impact assessment
+
+### File Locations
+
+- Default: Project root (D:\Repos\Meshviz\)
+- Hardware Context: meshviz_hardware_context.json
+- Performance Context: meshviz_performance_context.json
+- Configurable: Optional custom paths via parameters
+
+- Change Detection Strategy
+
+Hardware Context: Manual, only update if user sets to true.
+Performance Context: If set to True. Append new metrics, maintain rolling window
+Smart Updates: Avoid file I/O overhead during rendering loops
