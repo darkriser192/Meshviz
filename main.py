@@ -1,5 +1,6 @@
 import glfw
 from OpenGL.GL import *  # pyright: ignore[reportWildcardImportFromLibrary]
+import OpenGL.GLUT as GLUT # pyright: ignore[reportWildcardImportFromLibrary]
 import numpy as np
 from shaders.shaders import *
 import shapes as shp
@@ -12,7 +13,7 @@ import sympy as smp
 # TODO Implement BVH
 # TODO Implement some raytraicing
 
-DEBUG = True
+DEBUG = True  # Set to True for debugging output
 
 logger = setup_logger() 
 
@@ -53,9 +54,10 @@ def create_perspective_matrix(fov=45.0, aspect_ratio=1.0, near=0.1, far=100.0):
         [0, 0, -1, 0]
     ], dtype=np.float32)
     
-    return proj
+    return proj    
 
 def main():
+    
     WIDTH, HEIGHT = 1260, 900
     ASPECT_RATIO = WIDTH / HEIGHT
     
@@ -96,22 +98,46 @@ def main():
         logger.info(f"Renderer: {renderer}")
 
     shader_program = create_shader_program(BASIC_VERTEX_SHADER, BASIC_FRAGMENT_SHADER)
-    
-    triangle_1_vertices = shp.triangle_vertices
 
     # VAO and VBO Creation and Binding
-    VAO_1 = glGenVertexArrays(1)
+    VAO_1 = glGenVertexArrays(1) # 1 creates 1 buffer, 2 returns an array of 2 buffers
     glBindVertexArray(VAO_1)
     proj_loc = glGetUniformLocation(shader_program, "projection")
 
-    VBO_1 = glGenBuffers(1)
+    VBO_1 = glGenBuffers(1) # 1 creates 1 buffer, 2 returns an array of 2 buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO_1)
-    triangle_1_f32 = triangle_1_vertices.astype(np.float32, copy=False)
+
+    EBO_1 = glGenBuffers(1) # 1 creates 1 buffer, 2 returns an array of 2 buffers
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_1)
+
+    # Create a tetrahedron and a cube mesh test objects
+    size_test = 0.75
+    Tet_mesh = shp.create_tetrahedron (size_test)
+    Cube_mesh = shp.create_cube (size_test)
+
+    RENDER_MESH = Cube_mesh  # Change this to Cube_mesh to render the cube instead
+    
+    # Upload vertex data to GPU
     glBufferData(
         GL_ARRAY_BUFFER,
-        triangle_1_f32.nbytes,
-        triangle_1_f32,
+        RENDER_MESH.vertices.astype(np.float32, copy= False).nbytes,
+        RENDER_MESH.vertices.astype(np.float32, copy= False),
         GL_STATIC_DRAW)
+    
+    # Upload facet data to GPU
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        RENDER_MESH.facets.nbytes,
+        RENDER_MESH.facets,
+        GL_STATIC_DRAW)
+    
+    color_loc = glGetUniformLocation(shader_program, "meshColor")
+    
+    # Log vertex data upload
+    if DEBUG:
+        logger.info(f"Vertex data uploaded to GPU: {RENDER_MESH.vertices.shape[0]} vertices, {RENDER_MESH.facets.size} facets")
+        logger.info(f"Vertex data type: {RENDER_MESH.vertices.dtype}, facets data type: {RENDER_MESH.facets.dtype}")
+        logger.info(f"Vertex buffer size: {RENDER_MESH.vertices.nbytes} bytes, facets buffer size: {RENDER_MESH.facets.nbytes} bytes")
 
     # Link vertex data to shader layout (location = 0)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
@@ -133,7 +159,14 @@ def main():
         projection_matrix = create_orthographic_matrix(ASPECT_RATIO)
         glUniformMatrix4fv(proj_loc, 1, GL_FALSE, projection_matrix.astype(np.float32, copy=False))
         
-        glDrawArrays(GL_TRIANGLES, 0, 3) # Draw 3 vertices -> 1 triangle
+        glUniform4fv(color_loc, 1, RENDER_MESH.solid_color)  # Set the mesh color
+        
+        glDrawElements(GL_TRIANGLES, # Type of geometry to draw based on the indices
+                    RENDER_MESH.facets.size, # Number of indices to draw
+                    GL_UNSIGNED_INT, None) # Type of indices and offset (None means start from the beginning)
+        
+        # glDrawArrays(GL_TRIANGLES, 0, Tet_mesh.vertices.shape[0]) # Alternative to draw without indices
+        
         glBindVertexArray(0) # Unbinds the VAO for code safety
 
         glfw.swap_buffers(window)
@@ -142,6 +175,7 @@ def main():
     # Cleanup GPU resources
     glDeleteVertexArrays(1, [VAO_1])
     glDeleteBuffers(1, [VBO_1])
+    glDeleteBuffers(1, [EBO_1])
     glDeleteProgram(shader_program)
 
     # Terminate GLFW

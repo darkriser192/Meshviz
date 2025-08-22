@@ -180,25 +180,100 @@ def _generate_cube_geometry(size = 1.0):
     vertices = np.array([v0, v1, v2, v3, v4, v5, v6, v7]) * size
     facets = np.array([
         [0,1,3],
-        [1,2,3],
+        [1,3,2],
         [0,4,5],
         [5,1,0],
         [1,5,6],
         [6,3,1],
-        [2,6,7],
-        [7,3,2],
+        [2,7,6],
+        [7,2,3],
         [4,7,5],
         [5,0,4],
-        [4,5,6],
+        [4,6,5],
         [5,6,7]
     ])
 
     return vertices, facets
 
 def _generate_sphere_geomery(redius = 1.0, resolution = 1):
-    # TODO implement the sphere generation
+    # TODO implement the sphere generation. Resolution defines the number of segments in the sphere. 1 generates an octahedron, 2 generates a dodecahedron, etc.
     
     pass
+
+def _generate_triangle_geometry(size = 1.0):
+    """
+    Generates a triangle with vertices scaled by the given size.
+    Vertices are centered at the origin
+    """
+    # Example Triangle
+    vertices = np.array([
+        [ 0.0,  0.5, 0.0],  # Top
+        [-0.5, -0.5, 0.0],  # Bottom Left
+        [ 0.5, -0.5, 0.0]   # Bottom Right
+    ], dtype = np.float64) * size  # Scale by size
+
+    facets = None  # No facets needed for a single triangle, but can be added later if needed
+
+    return vertices, facets
+
+def _gererate_circle_geometry(radius = 1.0, resolution = 4):
+    """
+    Generates a circle with vertices scaled by the given radius.
+    Vertices are centered at the origin.
+    resolution defined the number of segments in the circle
+
+    Args:
+        radius: Radius of the circle
+        resolution: Number of segments in the circle
+    Returns:
+        np.ndarray: Vertices of the circle
+    """
+    assert resolution >= 4, "Resolution must be at least 4 to form a circle"
+
+    angles = np.linspace(0, 2 * np.pi, resolution, endpoint=False)
+    x = radius * np.cos(angles)
+    y = radius * np.sin(angles)
+    z = np.zeros_like(x)  # All points lie in the XY plane
+    
+    # Stack coordinates into a single array
+    vertices = np.column_stack((x, y, z)) # Shape (resolution, 3)
+
+    # Form triangles by connecting the center to each segment
+    center = np.array([[0.0, 0.0, 0.0]])  # Center point at the origin
+    indices = np.arange(resolution)
+    # TODO implement facet generation
+    # Method: Create N triangles from center to circumference
+    # Pattern: for each segment i, create triangle [center_index, i, (i+1) % resolution]
+    # center_index = resolution (last vertex), circumference vertices = 0 to resolution-1
+    # Example for resolution=6: triangles = [[6,0,1], [6,1,2], [6,2,3], [6,3,4], [6,4,5], [6,5,0]]
+    facets = None
+    
+    return vertices, facets
+
+def _generate_cylinder_geometry(radius = 1.0, length = 1.0, resolution = 1):
+    # TODO implement the cylinder generation
+    """
+    Generates a cylinder with vertices scaled by the given radius and length.
+    Vertices are centered at the origin.
+    resolution defines the number of segments in the cylinder
+    Args:
+        radius: Radius of the cylinder
+        length: Length of the cylinder
+        resolution: Number of segments in the cylinder
+    
+    Returns:
+        np.ndarray: Vertices of the cylinder
+        np.ndarray: Facets of the cylinder
+    """
+    vertices, lid_facets = _gererate_circle_geometry(radius, resolution)  # Get circle vertices adn facets
+    top_vertices = vertices.copy() + length  # Copy circle vertices for top lid
+    bottom_vertices = vertices.copy() - length  # Copy circle vertices for bottom lid
+    
+    # TODO implement facets generation for both lids and the cylinder sides
+    facets = None  # Placeholder for facets, needs implementation
+
+
+    return vertices, facets  # Return vertices and facets of the cylinder
 
 def transform_vector(trasnform: np.ndarray, vector: np.ndarray) -> np.ndarray:
     # TODO Create Transform_vector support function. Efficient multiplication of a 4x4 afine transformation and a 3,1 vector
@@ -210,7 +285,7 @@ def transform_vector(trasnform: np.ndarray, vector: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Transformed vector(s) in homogeneous coordinates (shape (3,1) or (N, 3))
     """
-
+    result_vector = np.zeros((4,1))  # Placeholder for the result
 
     return result_vector
 
@@ -219,14 +294,70 @@ def transform_transform(transform_mod: np.ndarray, transform_target: np.ndarray)
     """
     Combines two affine transformations into a single transformation.
     """
+
+    result_transform = np.eye(4)  # Placeholder for the result
     return result_transform
 
-def inverse_Homogeneous_transform(transform: np.ndarray) -> np.ndarray:
+def inverse_Homogeneous_transform(transform): #Must be a Trasnform class object
     # TODO Create a function that efficiently computes the inverse of a 4x4 affine transform
     """
     Computes the inverse of a 4x4 affine transformation matrix.
     """
-    return inverseTransform
+    inverse_rotation_matrix = np.eye(3)  # Placeholder for the rotation component
+    inverse_translation_vector = np.zeros((3,1))  # Placeholder for the translation component
+    
+    return inverse_rotation_matrix, inverse_translation_vector
+
+class Transform():
+    """
+    Class to represent a 4x4 affine transformation matrix.
+    This class provides methods for efficient multiplication with vectors and other transformations.
+    """
+    def __init__(self):
+        self.rotation = np.eye(3, dtype=np.float64)
+        self.translation = np.zeros((3,1), dtype=np.float64)
+        self.quaternion = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float64)  # Identity quaternion
+        self.euler_angles = np.zeros((3,), dtype=np.float64)  # Euler angles in radians
+        self.inverse_rotation = np.eye(3, dtype=np.float64)
+        self.inverse_translation = np.zeros((3,1), dtype=np.float64)
+        self.parent = 0  # Index of the parent transformation, if 0 then it is the world transformation
+
+    def as_homogeneous_matrix(self):
+        """
+        Converts the transformation to a 4x4 affine matrix incase it is needed
+        """
+        pass
+    
+    def as_euler_vecor(self):
+        """
+        Converts the transformation to a 3D vector representing the euler angles plus trasnlation
+        """
+        
+        pass
+
+    def as_quaternion(self):
+        """
+        Converts the transformation to a quaternion representation plus trasnlation
+        """
+
+        pass
+
+    def get_rotation_matrix(self):
+        return self.rotation
+    
+    def get_translation_vector(self):
+        return self.translation
+    
+    def get_quaternion(self):
+        return self.quaternion
+    
+    def get_euler_angles(self):
+        return self.euler_angles
+    
+    def get_inverse_rotation_matrix(self):
+        if self.inverse_rotation is None or np.any(self.inverse_rotation == 0):
+            self.inverse_rotation, self.inverse_translation = inverse_Homogeneous_transform(self)
+
 
 #----- Objects and classes for the Meshviz library -----#
 ## Mesh object that contains optimized triangular infomration and computes any other meaningfull data
@@ -519,13 +650,6 @@ def test_convex_shape_winding(mesh: Mesh):
     dot_products =np.sum(mesh.facet_normals * outward_directions, axis=1)
     
     return dot_products
-
-# Example Triangle
-triangle_vertices = np.array([
-    [ 0.0,  0.5, 0.0],  # Top
-    [-0.5, -0.5, 0.0],  # Bottom Left
-    [ 0.5, -0.5, 0.0]   # Bottom Right
-], dtype = np.float64)
 
 #----- Main function to test the Meshviz - Shapes library -----#
 def main():

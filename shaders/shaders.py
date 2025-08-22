@@ -10,10 +10,11 @@ void main() {
 
 BASIC_FRAGMENT_SHADER = """
 #version 330 core
+uniform vec4 meshColor;
 out vec4 FragColor;
 
 void main() {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);  // Red color
+    FragColor = meshColor;  // Red color
 }
 """
 
