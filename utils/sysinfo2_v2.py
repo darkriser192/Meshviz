@@ -8,7 +8,15 @@ import os
 # TODO optimize "import" statements across the codebase
 # TODO Merge this with sysinfo.py
 
-def get_system_info(include_limits=True, vram_pct=0.85, ram_pct=0.80, cpu_pct=0.90):
+
+
+def get_system_info(include_limits=True,
+                    vram_pct = DEFAULT_VRAM_PCT,
+                    ram_pct = DEFAULT_RAM_PCT,
+                    cpu_pct = DEFAULT_CPU_PCT,
+                    export_hardware_info = True,
+                    export_performance_info = False,
+                    console_logging = True):
     """
     Consolidated system information gathering with optional resource limits
     
@@ -17,6 +25,7 @@ def get_system_info(include_limits=True, vram_pct=0.85, ram_pct=0.80, cpu_pct=0.
         vram_pct: Percentage of VRAM to use as limit (0.0-1.0)
         ram_pct: Percentage of RAM to use as limit (0.0-1.0)  
         cpu_pct: Percentage of CPU threads to use as limit (0.0-1.0)
+        
     
     Returns:
         dict: System information and optional resource limits
@@ -118,7 +127,10 @@ def _get_gpu_info():
     
     return gpu_info
 
-def _calculate_resource_limits(vram_pct, ram_pct, cpu_pct):
+def _calculate_resource_limits(vram_pct = DEFAULT_VRAM_PCT, 
+                               ram_pct = DEFAULT_RAM_PCT, 
+                               cpu_pct = DEFAULT_CPU_PCT):
+    
     """Calculate recommended resource usage limits"""
     limits = {}
     
@@ -164,7 +176,16 @@ if __name__ == "__main__":
     full_info = get_system_info()
     
     # Get basic info without limits
-    basic_info = get_system_info(include_limits=False)
+    basic_info = get_system_info(include_limits=False,
+                                 export_hardware_info = True,
+                                 export_performance_info = False,
+                                 console_logging = True)
     
     # Custom limit percentages
-    conservative_info = get_system_info(vram_pct=0.70, ram_pct=0.60, cpu_pct=0.75)
+    ccustom_info = get_system_info(include_limits=True,
+                                   vram_pct = 0.95,
+                                   ram_pct = 0.95,
+                                   cpu_pct = 0.95,
+                                   export_hardware_info = True,
+                                   export_performance_info = False,
+                                   console_logging = False)
