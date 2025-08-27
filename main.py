@@ -5,8 +5,12 @@ import numpy as np
 from shaders.shaders import *
 import shapes as shp
 from utils.log_setup import setup_logger
-from utils.sysinfo2 import get_system_info
-from utils.sysinfo import get_system_limits
+import utils.sysinfo as sysinfo
+
+from utils.sysinfo import * 
+# from utils.sysinfo_v2 import get_system_info
+# from utils.sysinfo_v1 import get_system_limits
+
 import sympy as smp 
 
 # TODO optimize "import" statements across the codebase
@@ -194,6 +198,10 @@ def main():
             else:
                 logger.info(f"{k}: {v}")
 
+    export_system_info(full_info = sysinfo, 
+                       filepath = "contexts", 
+                       filename = "system_info.json")
+
     # Initialize GLFW
     if not glfw.init():
         logger.error("Failed to initialize GLFW")
@@ -291,4 +299,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
     if DEBUG: logger.info("Correctly Exited Program")

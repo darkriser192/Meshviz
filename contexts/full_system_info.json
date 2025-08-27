@@ -1,0 +1,28 @@
+{
+    "OS": "Windows-10-10.0.26100-SP0",
+    "CPU": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "Cores": 32,
+    "Physical_Cores": 24,
+    "RAM_GB": 31.8,
+    "RAM_Available_GB": 16.64,
+    "Python_Version": "3.11.13",
+    "Architecture": "64bit",
+    "NVIDIA_ML_Error": "'str' object has no attribute 'decode'",
+    "GPU": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "GPU_Method": "DirectX-Diag",
+    "Resource_Limits": {
+        "max_threads": 16,
+        "total_threads": 32,
+        "max_ram_bytes": 17073369088,
+        "max_ram_gb": 15.9,
+        "total_ram_gb": 31.8,
+        "max_vram_bytes": 4292870144,
+        "max_vram_gb": 4.0,
+        "total_vram_gb": 8.0,
+        "percentages": {
+            "cpu": 0.5,
+            "ram": 0.5,
+            "vram": 0.5
+        }
+    }
+}

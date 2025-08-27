@@ -157,37 +157,49 @@
 
 **Architecture Philosophy:** Performance-first design anticipating GPU acceleration, multi-threading, and eventual C++/Cython migration. Sparse data structures and optimized affine transforms for real-time applications.
 
-**Next Session Priorities:** 
-1. ✅ **Mesh → OpenGL Integration** - COMPLETED: EBO rendering with color uniforms
-2. ✅ **Default Color Implementation** - COMPLETED: solid_color property working
-3. **Camera Controls Implementation** - Orbit camera (pan/zoom/rotate with mouse)
-4. **Mouse Input Handling** - GLFW mouse callbacks for camera interaction
+**Next Session Priorities (8/26/2025):** 
+1. **DECISION POINT**: Camera Controls Implementation (original plan) OR Sysinfo Integration Completion
+2. **If Camera Controls**: 
+   - Camera matrix mathematics (view matrices, orbit camera design)
+   - GLFW mouse input callbacks and event handling
+   - Camera state management (target, distance, angles)
+   - Integration with existing projection matrix system
+3. **If Sysinfo Integration**: 
+   - Update main.py imports to use unified sysinfo.py interface
+   - Test compatibility with existing system info usage
+   - Implement OpenGL capabilities detection (Step 3 from roadmap)
+   - Finalize hardware/performance context separation design
+4. **Cross-cutting**: Performance metrics decorator framework foundation
 
 ---
 ## In-between sessions updates
 
-### Last Agent Updated (8/20/2025): 
-**Session Focus:** Mesh → OpenGL EBO rendering pipeline implementation
+### Last Agent Updated (8/26/2025): 
+**Session Focus:** Sysinfo merge and comprehensive context switching system implementation
 **Major Achievements:** 
-- ✅ Successfully integrated Mesh objects with OpenGL indexed rendering
-- ✅ Implemented color uniform system using Mesh.solid_color property  
-- ✅ Validated EBO pipeline with both tetrahedron and cube primitives
-- ✅ Added flexible debug infrastructure (RENDER_MESH switching, comprehensive logging)
-- ✅ Documented circle facet generation pattern for future implementation
+- ✅ Successfully merged sysinfo.py + sysinfo2.py with backward compatibility 
+- ✅ Implemented robust JSON export system with automatic project path detection
+- ✅ Added comprehensive software environment detection (Python packages, versions, paths)
+- ✅ Enhanced error handling with verbose but non-blocking patterns
+- ✅ Created foundation for hardware/performance context separation (future)
+- ✅ Demonstrated file path resolution, package introspection, and API compatibility patterns
 
 **Technical Breakthroughs:**
-- Resolved facets.size vs num_facets indexing issue for proper triangle rendering
-- Established working OpenGL buffer management patterns
-- Validated memory-efficient EBO approach vs flattened vertex arrays
+- Resolved relative vs absolute path issues in cross-directory execution scenarios
+- Implemented package version detection using importlib.metadata with proper error handling
+- Established wrapper function patterns for maintaining API compatibility during refactoring
+- Created structured JSON export with proper formatting and robust error handling
+- Enhanced project structure with contexts/ folder for session handoff data
 
-**Next Session Ready State:** Camera controls implementation is the clear next priority
-**Immediate Blockers Removed:** Core rendering pipeline now fully functional
-**Context Transfer Notes:** Added comprehensive technical state documentation for seamless handoff
-### Last User Updated (8/20/2025): 
-*Successfully implemented Mesh → OpenGL EBO rendering pipeline with color uniforms*
-*Added comprehensive Transform class architecture foundation*
-*Created additional primitive generators (triangle, circle, cylinder stubs)*
-*Enhanced debugging with flexible mesh switching and detailed logging*
+**Next Session Ready State:** Context switching system foundation complete, ready for camera controls OR sysinfo integration completion
+**Immediate Blockers Removed:** Duplicate sysinfo files eliminated, JSON export working, environment detection operational
+**Context Transfer Notes:** Comprehensive system info now exportable to contexts/system_info.json with Python environment, GPU detection, and resource limits
+### Last User Updated (8/26/2025): 
+*Successfully merged duplicate sysinfo files with enhanced functionality and backward compatibility*
+*Implemented comprehensive JSON context export system with automatic path detection*
+*Added software environment detection for package versions and Python executable tracking*
+*Learned API compatibility patterns, file I/O best practices, and package introspection techniques*
+*Enhanced project structure with contexts/ folder for seamless Claude instance handoffs*
 
 ---
 ## Agent Context
@@ -235,15 +247,19 @@ Meshviz/
 ├── main.py                     # OpenGL rendering loop, projection matrices
 ├── shapes.py                   # Core Mesh class, primitive generators, degeneracy detection  
 ├── shaders/
-│   ├── shaders.py             # Basic vertex/fragment shaders, compilation utilities
+│   ├── shaders.py              # Basic vertex/fragment shaders, compilation utilities
 │   └── __pycache__/
 ├── utils/
-│   ├── log_setup.py           # Centralized logging configuration
-│   ├── sysinfo.py             # System resource detection (legacy)
-│   ├── sysinfo2.py            # Enhanced system info with GPU detection
-│   ├── support_math.py        # [EMPTY] - planned math optimization functions
+│   ├── log_setup.py            # Centralized logging configuration
+│   ├── sysinfo.py              # [MERGED] Enhanced system info + JSON context export
+│   ├── sysinfo_v1.py           # [BACKUP] Original system limits function
+│   ├── sysinfo2_v2.py          # [BACKUP] Enhanced GPU detection version
+│   ├── support_math.py         # [EMPTY] - planned math optimization functions
 │   └── __init__.py
-├── DemoShapes/                # Test assets for validation
+├── contexts/                   # Context switching JSON exports
+│   ├── [auto-generated system info files]
+│   └── [future: hardware_context.json, performance_context.json]
+├── DemoShapes/                 # Test assets for validation
 │   ├── bunny.obj
 │   ├── Stanford_dragon_84kfacets_binary.stl  
 │   └── teapot_ASCII.stl
@@ -384,7 +400,12 @@ Meshviz/
 - [ ] **Contour generation** - From mesh and SDF with intersection planes
 
 ### 🧹 Priority 7: Maintenance & Optimization
-- [ ] **Import statement optimization** - Across entire codebase
+- [✅] **Sysinfo file merge** - COMPLETED: Successfully merged sysinfo.py + sysinfo2.py with backward compatibility
+- [✅] **JSON context export system** - COMPLETED: Robust export with automatic path detection
+- [✅] **Software environment detection** - COMPLETED: Package versions and Python executable tracking
+- [ ] **Import statement optimization** - Comprehensive audit across entire codebase for duplicate/redundant imports
+- [ ] **Package capability consolidation** - Identify overlapping functionality between numpy/scipy, matplotlib/plotly/seaborn, etc.
+- [ ] **Import dependency mapping** - Document actual vs declared dependencies for context switching accuracy
 - [ ] **Sparse degeneracy storage** - Memory optimization for large meshes
 - [ ] **Update degeneracy flags** - Integrate into update functions  
 - [ ] **Material definition system** - Replace solid_color with full material properties
@@ -412,6 +433,27 @@ Meshviz/
 **Nyquist Sampling:** Use signal processing principles for mesh resolution
 **Melt Pool Analysis:** Triangle classification for thermal simulation relevance
 **Time Integration:** Support for temporal mesh evolution (0.001s resolution)
+
+### Context Switching & Session Handoff System
+**Implementation Status:** Foundation complete, JSON export operational
+**Key Files:** `utils/sysinfo.py` (merged), `contexts/` folder (auto-generated)
+**Usage Pattern:** Run `python utils/sysinfo.py` to generate comprehensive system context
+**Critical Dependencies:** numpy 2.3.1, sympy 1.13.3, psutil 7.0.0, pynvml 12.0.0, glfw 2.9.0 (conda environment: meshviz)
+**Development Environment:** Windows 10 build 26100, Python 3.11.13 in Anaconda dedicated environment
+**Architectural Decisions Made This Session:**
+- Backward compatibility over breaking changes (wrapper function pattern)
+- Verbose error handling that doesn't crash (try/except with logging)
+- Automatic project path detection using script location (os.path.dirname patterns)
+- Structured JSON export with proper formatting (indent=4) for human readability
+- Package detection using importlib.metadata for accuracy vs pip/conda parsing
+**Next Agent Onboarding:** Read contexts/system_info.json + this design document for complete project state
+
+### Import Optimization & Dependency Management
+**Current Challenge:** Potential duplicate capabilities across scientific Python ecosystem
+**Investigation Areas:** numpy/scipy overlap, matplotlib/plotly/seaborn redundancy, OpenGL/GLFW import patterns
+**Context Switching Impact:** Accurate package detection requires understanding actual vs. declared dependencies
+**Optimization Strategy:** Audit → consolidate → document → validate performance impact
+**Educational Value:** Understanding Python packaging, import costs, and scientific computing ecosystem overlaps
 
 ### Robot Control And Trajectory Generation
 **Trajectory Generation and modification:** Robot trajectory Generation
@@ -480,8 +522,6 @@ Meshviz/
   - Implementation priority: When we hit complex transform hierarchies or performance bottlenecks
   - Educational value: Understanding caching patterns and sparse data structures for performance-critical code
 
-
-
 ---
 
 ## SYSINFO Merge and Implementation Strategy
@@ -520,7 +560,8 @@ Meshviz/
 - Configurable: Optional custom paths via parameters
 
 - Change Detection Strategy
-
+ 
+### Notes:
 Hardware Context: Manual, only update if user sets to true.
 Performance Context: If set to True. Append new metrics, maintain rolling window
 Smart Updates: Avoid file I/O overhead during rendering loops
