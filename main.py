@@ -5,7 +5,6 @@ import numpy as np
 from shaders.shaders import *
 import shapes as shp
 from utils.log_setup import setup_logger
-import utils.sysinfo as sysinfo
 
 from utils.sysinfo import * 
 # from utils.sysinfo_v2 import get_system_info
@@ -19,7 +18,7 @@ import sympy as smp
 
 DEBUG = True  # Set to True for debugging output
 
-logger = setup_logger() 
+logger = setup_logger() # Initialize logger
 
 class ColorMode:
     INDIVIDUAL = "individual"      # Each mesh uses its solid_color
